@@ -1,0 +1,247 @@
+---
+title: "K-means-Clustering-on-Mammals-Dataset"
+author: "Deshon Langdon"
+output:
+  html_document:
+    toc: yes
+    toc_float: yes
+  pdf_document:
+    toc: yes
+---
+
+
+
+
+```{r}
+
+cat(" Since the goal of clustering here in case is to group similar animals based on their physical characteristics given the various the tooth pattern of types of teeth from to bottom. Therefore e can omit the Name attribute before performing clustering, as it is not a numerical attribute and cannot be used directly in the clustering algorithm")
+
+                             
+```
+
+
+
+```{r}
+
+cat("Since ranges of values are already within 0-5 for each attribute, in dataset then it is not strictly necessary to standardize in this dataset./n")
+
+
+  setwd(" ")
+
+library(cluster)
+library(factoextra)
+library(fpc)
+library(dbscan)
+  
+file <- read.csv("file.csv")
+
+```
+
+
+
+```{r}
+
+k_clusters <- fviz_nbclust(file[1:8], kmeans, method="silhouette") 
+
+print(k_clusters)
+```
+
+
+
+```{r}
+k <- kmeans(file[1:8], centers=8, nstart=25)
+
+k_meansplot<- fviz_cluster(k, data=file[1:8])
+
+k_meansplot
+
+```
+
+
+
+
+```{r}
+
+cluster1 <- k$size[1]
+cluster2 <- k$size[2]
+cluster3 <- k$size[3]
+cluster4 <- k$size[4]
+cluster5 <- k$size[5]
+cluster6 <- k$size[6]
+cluster7 <- k$size[7]
+cluster8 <- k$size[8]
+
+
+cat(" cluster 1 has :",cluster1,"observations. \n") 
+cat(" cluster 2 has :",cluster2, "observations. \n")
+cat(" cluster 3 has :",cluster3, "observations. \n")
+cat(" cluster 4 has :",cluster4, "observations \n")
+cat(" cluster 5 has :",cluster5, "observations. \n")
+cat(" cluster 6 has :",cluster6, "observations \n")
+cat(" cluster 7 has :",cluster7, "observations. \n")
+cat(" cluster 8 has :",cluster8, "observations. \n")
+                             
+```
+
+
+```{r}
+totalSSE <- k$tot.withinss
+
+cat("Total SSE all the clusters is ", totalSSE, "\n") 
+
+```
+
+
+
+```{r}
+
+cat(" cluster 1 total SSE :",k$withinss[1],".\n") 
+cat(" cluster 2 total SSE :",k$withinss[2],".\n")
+cat(" cluster 3 total SSE :",k$withinss[3],".\n")
+cat(" cluster 4 total SSE :",k$withinss[4],".\n")
+cat(" cluster 5 total SSE :",k$withinss[5],".\n")
+cat(" cluster 6 total SSE :",k$withinss[6],".\n")
+cat(" cluster 7 total SSE :",k$withinss[7],".\n")
+cat(" cluster 8 total SSE :",k$withinss[8],".\n")
+
+
+
+                             
+```
+
+
+
+
+```{r}
+expectations1 <- which(k$cluster == 1)
+expectations2 <- which(k$cluster == 2)
+expectations3 <- which(k$cluster == 3)
+expectations4 <- which(k$cluster == 4)
+expectations5 <- which(k$cluster == 5)
+expectations6 <- which(k$cluster == 6)
+expectations7 <- which(k$cluster == 7)
+expectations8 <- which(k$cluster == 8)
+
+
+
+cat ("The overall performance was fair by k means, however, in the analysis of each cluster, there were inconsistencies. In some clusters here inconsistencies were above average, where clusters grouped Elephant seals and family of bats with nose moles as clusters having the same teeth pattern. however, in another cluster like cluster 8, it is above average where it grouped the 90% of species that are in the same animal class thus having the same teeth patterns.")
+
+```
+
+
+
+```{r}
+s1 <- read.csv("s1.csv")
+
+cat ("Yes do we need to standardize the database because ensure that both  X and Y values are on the same scale, ensure that the variables are equally weighted make them comparable, and allow for accurate analysis")
+
+                             
+```
+
+
+```{r}
+df.scaled <- scale(s1)
+plot<- plot(df.scaled, main="Raw Data")
+
+```
+
+
+```{r}
+
+cat("From the plot I observed that the clusters here are well sepearted. I observed totol of 15 clusters from this plot. ")
+
+```
+
+
+```{r}
+k.scaled <- kmeans(df.scaled, centers=2)
+
+k_meansplot_1 <- fviz_cluster(k.scaled, data=df.scaled, main="Scaled clusters")
+
+wss <- fviz_nbclust(df.scaled, kmeans, method="wss") 
+print(k_meansplot_1)
+print(wss)
+
+
+```
+
+
+ 
+```{r}
+
+silhouette <- fviz_nbclust(df.scaled, kmeans, method="silhouette")
+
+print(silhouette)
+```
+ 
+```{r}
+cat("The appropriate number of clusters would be 10 if we were to use K-Means clustering on this dataset")
+```
+
+
+```{r}
+k_1 <- kmeans(df.scaled, centers=10, nstart=25)
+
+k_meansplot_1<- fviz_cluster(k_1, data=df.scaled)
+
+k_meansplot_1
+
+```
+
+ 
+```{r}
+cat(" Since specified number of clusters was 10 then and examining the raw plottted points previuoisly, k means did overal good job,becasue the clusters that were close to each other in the raw plot are now merged into of the same some of the cluster as have similar points between them")
+```
+
+
+
+```{r}
+dbscan::kNNdistplot(df.scaled, k = 5)
+abline(h = 0.10, lty = 2)
+
+cat(" The minpts value 5, because this dataset using number minpts low minpts as 5 created optimal clusters .")
+```
+
+
+ 
+```{r}
+db <- fpc::dbscan(df.scaled, eps = 0.10, MinPts=5)
+plot(db, df.scaled, main = "DBSCAN", frame = FALSE)
+
+cat(paste("At minPts =",db$MinPts , "eps = 0.10 there are 8 clusters."))
+
+```
+
+
+
+```{r}
+library(fpc)
+library(factoextra)
+library(dbscan)
+
+set.seed(123)
+
+rm(list=ls())
+
+data("multishapes", package = "factoextra")
+df <- multishapes[, 1:2]
+
+plot(df, main="Raw points before DBSCAN")
+
+# Let's run k-means on this first.  Choose a value of k...
+k <- kmeans(df, centers=5, nstart=25)
+fviz_cluster(k, df)
+
+# ---- Now, onto dbscan
+# Run dbscan
+db <- fpc::dbscan(df, eps = 0.15, MinPts = 5)
+plot(db, df, main = "DBSCAN", frame = FALSE)
+
+```
+
+
+
+```{r}
+df
+```
+
